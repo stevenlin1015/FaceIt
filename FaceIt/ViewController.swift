@@ -12,9 +12,36 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var faceView: FaceView! {
         didSet {
+            let handler = #selector(FaceView.changeScale(byReactingTo:))
+            let pinchRecognizer = UIPinchGestureRecognizer(target: faceView, action: handler)
+            faceView.addGestureRecognizer(pinchRecognizer)
+            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleEyes(byReactingTo:)))
+            tapRecognizer.numberOfTapsRequired = 1
+            faceView.addGestureRecognizer(tapRecognizer)
+            let swipeUpRecongizer = UISwipeGestureRecognizer(target: self, action: #selector(increaseHappiness))
+            swipeUpRecongizer.direction = .up
+            faceView.addGestureRecognizer(swipeUpRecongizer)
+            let swipeDownREcognizer = UISwipeGestureRecognizer(target: self, action: #selector(decreaseHappiness))
+            swipeDownREcognizer.direction = .down
+            faceView.addGestureRecognizer(swipeDownREcognizer)
             updateUI()
         }
     }
+    
+    func increaseHappiness() {
+        expression = expression.happier
+    }
+    func decreaseHappiness() {
+        expression = expression.sadder
+    }
+    
+    func toggleEyes(byReactingTo tapRecognizer: UITapGestureRecognizer) {
+        if tapRecognizer.state == .ended {
+            let eyes: FacialExpression.Eyes = (expression.eyes == .closed) ? .open : .closed
+            expression = FacialExpression(eyes: eyes, mouth: expression.mouth)
+        }
+    }
+    
     
     var expression = FacialExpression(eyes: .closed, mouth: .frown) {
         didSet {
